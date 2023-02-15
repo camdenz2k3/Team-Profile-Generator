@@ -5,50 +5,39 @@ const Manager = require('./lib/Manager')
 const Engineer = require('./lib/Engineer')
 const Intern = require('./lib/Intern')
 
-let managerCard = ``
-let engineerCards = ``
-let internCards = ``
+const answersArr = []
+const employeeArray = []
 
-inquirer.prompt([
-    {
-        type: 'input',
-        name: 'name',
-        message: "What is the team manager's name?"
-    },
-    {
-        type: 'number',
-        name: 'id',
-        message: "What is the team manager's employee ID?"
-    },
-    {
-        type: 'input',
-        name: 'email',
-        message: "What is the team manager's email?"
-    },
-    {
-        type: 'number',
-        name: 'officeNumber',
-        message: "What is the team manager's office number?"
-    }
-])
-.then((answers) => {
-    const manager = new Manager(answers.name, answers.id, answers.email, answers.officeNumber)
-    managerCard = generateHTML.generateManagerCard(manager)
-    building()
-})
-
-
-function building() {
-    inquirer.prompt([
+const promptManager = () => {
+    inquirer.promptMN([
         {
-            type: 'list',
-            name: 'building',
-            message: "Would you like to add an engineer or an intern or to finish building the team?",
-            choices: ['engineer', 'intern', 'finish building team']
+            type: 'input',
+            name: 'name',
+            message: "What is the team manager's name?"
+        },
+        {
+            type: 'number',
+            name: 'id',
+            message: "What is the team manager's employee ID?"
+        },
+        {
+            type: 'input',
+            name: 'email',
+            message: "What is the team manager's email?"
+        },
+        {
+            type: 'number',
+            name: 'officeNumber',
+            message: "What is the team manager's office number?"
         }
     ])
-    .then((answer) => {
-        if (answer.building === 'engineer') {
+    .then((answers) => {
+        answersArr.push(answers)
+        promptNextEmployee()
+    })
+}
+
+const promptEngineer = () => {
             inquirer.prompt([
                 {
                     type: 'input',
@@ -72,14 +61,11 @@ function building() {
                 },
             ])
             .then((answers) => {
-                const engineer = new Engineer(answers.name, answers.id, answers.email, answers.username)
-                const engineerCard = generateHTML.generateEngineerCard(engineer)
-                engineerCards += engineerCard
+                answersArr.push(answers)
+                promptNextEmployee()
             })
-            .then(() => {
-                building()
-            })
-        } else if (answer.building === 'intern') {
+        }
+        const promptIntern = () => {
             inquirer.prompt([
                 {
                     type: 'input',
@@ -103,17 +89,40 @@ function building() {
                 },
             ])
             .then((answers) => {
-                const intern = new Intern(answers.name, answers.id, answers.email, answers.school)
-                const internCard = generateHTML.generateInternCard(intern)
-                internCards += internCard
+                answersArr.push(answers)
+                promptNextEmployee()
             })
-            .then(() => {
-                building()
-            })
-        } else if (answer.building === 'finish building team') {
-            const group = generateHTML.generateHTML(managerCard, engineerCards, internCards)
+        }
+        const promptNextEmployee = () => {
+            inquirer.prompt([
+                {
+                    type: "list",
+                    name: "nextEmployee",
+                    message: "Add another employee?",
+                    choices: ["Engineer", "Intern", "Done"]
+                },
+            ])
+            .then((answers) => {
+                if (answers.nextEmployee === "Engineer") {
+                    promptEngineer()
+                } else if (answers.nextEmployee === "Intern") {
+                    promptIntern()
+                } else {
+                    answersArr.forEach((employee) => {
+                        if (employee.officeNumber) {
+                            const mgmt = new Manager(employee.name, employee.id, employee.email, employee.officeNumber)
+                            employeeArray.push(mgmt)
+                        } else if (employee.github) {
+                            const eng = new Engineer(employee.name, employee.id, employee.email, employee.github)
+                            employeeArray.push(eng)
+                        } else {
+                            const int = new Intern(employee.name, employee.id, employee.email, employee.school)
+                            employeeArray.push(int)
+                        }
+                    })
+                    const group = generateHTML.generateHTML(employeeArray)
 
-            fs.writeFile('./dist/team-profile.html', group)
+            fs.writeFile('./dist/profile.html', group)
         }
     })
 }
