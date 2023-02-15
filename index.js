@@ -126,3 +126,4 @@ const promptEngineer = () => {
         }
     })
 }
+promptManager()
