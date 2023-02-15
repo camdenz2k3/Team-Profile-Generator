@@ -1,11 +1,11 @@
 const fs = require('fs')
 const inquirer = require('inquirer')
-const generateHTML = require('./src/html.js')
+const generateHTML = require('./src/generateHTML')
 const Manager = require('./lib/Manager')
 const Engineer = require('./lib/Engineer')
 const Intern = require('./lib/Intern')
 
-const answersArr = []
+const answersArray = []
 const employeeArray = []
 
 const promptManager = () => {
@@ -26,13 +26,13 @@ const promptManager = () => {
             message: "What is the team manager's email?"
         },
         {
-            type: 'number',
+            type: 'input',
             name: 'officeNumber',
             message: "What is the team manager's office number?"
         }
     ])
     .then((answers) => {
-        answersArr.push(answers)
+        answersArray.push(answers)
         promptNextEmployee()
     })
 }
@@ -61,7 +61,7 @@ const promptEngineer = () => {
                 },
             ])
             .then((answers) => {
-                answersArr.push(answers)
+                answersArray.push(answers)
                 promptNextEmployee()
             })
         }
@@ -89,7 +89,7 @@ const promptEngineer = () => {
                 },
             ])
             .then((answers) => {
-                answersArr.push(answers)
+                answersArray.push(answers)
                 promptNextEmployee()
             })
         }
@@ -108,7 +108,7 @@ const promptEngineer = () => {
                 } else if (answers.nextEmployee === "Intern") {
                     promptIntern()
                 } else {
-                    answersArr.forEach((employee) => {
+                    answersArray.forEach((employee) => {
                         if (employee.officeNumber) {
                             const mgmt = new Manager(employee.name, employee.id, employee.email, employee.officeNumber)
                             employeeArray.push(mgmt)
@@ -120,9 +120,8 @@ const promptEngineer = () => {
                             employeeArray.push(int)
                         }
                     })
-                    const group = generateHTML.generateHTML(employeeArray)
 
-            fs.writeFile('./dist/profile.html', group)
+            fs.writeFile('./dist/profile.html', generateHTML(employeeArray))
         }
     })
 }
