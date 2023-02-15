@@ -120,8 +120,7 @@ const promptEngineer = () => {
                             employeeArray.push(int)
                         }
                     })
-
-            fs.writeFile('./dist/profile.html', generateHTML(employeeArray))
+            fs.writeFileSync('./dist/profile.html', generateHTML(employeeArray))
         }
     })
 }
