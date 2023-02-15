@@ -9,7 +9,7 @@ const answersArr = []
 const employeeArray = []
 
 const promptManager = () => {
-    inquirer.promptMN([
+    inquirer.prompt([
         {
             type: 'input',
             name: 'name',
